@@ -1,5 +1,5 @@
-var gridSize = 50; // grid size
-var spawnRate = 0.35; // random array spawn rate (50% = 0.5)
+var gridSize = 60; // grid size
+var spawnRate = 0.50; // random array spawn rate (50% = 0.5)
 
 const filler = [];
 function generateGrid() {
@@ -16,7 +16,6 @@ function generateGrid() {
 	}
 	return randomArr;
 }
-
 
 // </main>
 function futureState(currentState) {
@@ -74,10 +73,6 @@ function futureState(currentState) {
 	if (cst[ht][lh])
 	{score[ht-1][lh-1] += 1; score[ht-1][lh] += 1; score[ht-1][0] += 1; score[ht][lh-1] += 1; score[ht][0] += 1; score[0][lh-1] += 1; score[0][lh] += 1}
 
-	function isAlive(num) {
-		if (num == 5 || num == 6) {return 1} else {return 0}
-	}
-
 	for (var i = 0; i <= ht; i++) {
 		for (var j = 1; j < lh; j++) {
 			if (cst[i][j]) {passScore(i, j);}
@@ -107,25 +102,12 @@ function futureState(currentState) {
 	}
 
 	var fts = newStateFromScore();
-	// console.log('---Current State---');
-	// for (var i = 0; i < score.length; i++) {
-	// 	console.log(cst[i]);
-	// }
-	// console.log('---Score---');
-	// for (var i = 0; i < score.length; i++) {
-	// 	console.log(score[i]);
-	// }
-	// console.log('---Future State---');
-	// for (var i = 0; i < fts.length; i++) {
-	// 	console.log(fts[i])
-	// }
 	// console.timeEnd('fts');
 	return fts;
 }
 
 // \/\/\/ To be replace by React.js \/\/\/ --only for testing
 function generateDOM(nowState) {
-	// console.time('DOM');
 	nowState = JSON.parse(JSON.stringify(nowState));
 	document.getElementById('main').innerHTML = '';
 		for (var i = 0; i < nowState.length; i++) {
@@ -135,13 +117,11 @@ function generateDOM(nowState) {
 			document.getElementById('main').appendChild(div);
 			for (var j = 0; j < nowState[i].length; j++) {
 				var divSm = document.createElement('DIV');
-				divSm.className = 'sqr';
+				divSm.className = 'off';
 				if (nowState[i][j]) {divSm.className = 'on';}
 				document.getElementById('div-'+i).appendChild(divSm);
 			}
 		}
-		// console.timeEnd('DOM');
-		// console.log('------');
 }
 
 var xyz = generateGrid();
