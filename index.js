@@ -1,25 +1,28 @@
+var gridSize = 50; // grid size
+var spawnRate = 0.35; // random array spawn rate (50% = 0.5)
+
+const filler = [];
 function generateGrid() {
 	var randomArr = [];
-	var filler = [];
-	for (var i = 0; i < 500; i++) {
+	for (var i = 0; i < gridSize; i++) {
 		randomArr[i] = [];
 		filler[i] = [];
-		for (var j = 0; j < 500; j++) {
-			var random = Math.random() < 0.2;
+		for (var j = 0; j < gridSize; j++) {
+			var random = Math.random() < spawnRate;
 			var num = random ? 1 : 0;
 			randomArr[i][j] = num;
 			filler[i][j] = 0;
 		}
 	}
-
-	return [randomArr, filler]
+	return randomArr;
 }
 
-console.time('test');
+
+// </main>
 function futureState(currentState) {
-	var cst = currentState[0].slice(0);
-	var score = currentState[1].slice(0);
-	var fst = [];
+	// console.time('fts');
+	var cst = currentState.slice();
+	var score = JSON.parse(JSON.stringify(filler));
 	var ht = cst.length - 1;
 	var lh = cst[0].length - 1;
 
@@ -61,7 +64,7 @@ function futureState(currentState) {
 			score[rowBot][colR] += 1;
 	}
 
-	score[0][0] = score[0][lh] = score[ht][0] = score[ht][lh] = 1;
+	score[0][0] = 1; score[0][lh] = 1; score[ht][0] = 1; score[ht][lh] = 1;
 	if (cst[0][0])
 	{score[ht][0] += 1; score[ht][1] += 1; score[0][lh] += 1; score[0][1] += 1; score[1][lh] += 1; score[1][0] += 1; score[1][1] += 1}
 	if (cst[0][lh])
@@ -88,10 +91,67 @@ function futureState(currentState) {
 	for (var i = 1; i < lh; i++) {
 		if (cst[i][lh]) {rightColPass(i, lh)}
 	}
+	// new code |\/|
+	function newStateFromScore() {
+		var newState = [];
+		for (var i = 0; i < score.length; i++) {
+			newState[i] = [];
+			for (var j = 0; j < score[i].length; j++) {
+				if (score[i][j] > 3 || score[i][j] < 2) {newState[i][j] = 0}
+				else if (score[i][j] == 3) {newState[i][j] = 1}
+				else if (score[i][j] == 2 && cst[i][j] == 1) {newState[i][j] = 1}
+				else {newState[i][j] = 0}
+			}
+		}
+		return newState;
+	}
 
-	return score;
+	var fts = newStateFromScore();
+	// console.log('---Current State---');
+	// for (var i = 0; i < score.length; i++) {
+	// 	console.log(cst[i]);
+	// }
+	// console.log('---Score---');
+	// for (var i = 0; i < score.length; i++) {
+	// 	console.log(score[i]);
+	// }
+	// console.log('---Future State---');
+	// for (var i = 0; i < fts.length; i++) {
+	// 	console.log(fts[i])
+	// }
+	// console.timeEnd('fts');
+	return fts;
 }
 
-var x = futureState(generateGrid());
+// \/\/\/ To be replace by React.js \/\/\/ --only for testing
+function generateDOM(nowState) {
+	// console.time('DOM');
+	nowState = JSON.parse(JSON.stringify(nowState));
+	document.getElementById('main').innerHTML = '';
+		for (var i = 0; i < nowState.length; i++) {
+			var div = document.createElement('DIV');
+			div.id = 'div-'+i;
+			div.className = 'row'
+			document.getElementById('main').appendChild(div);
+			for (var j = 0; j < nowState[i].length; j++) {
+				var divSm = document.createElement('DIV');
+				divSm.className = 'sqr';
+				if (nowState[i][j]) {divSm.className = 'on';}
+				document.getElementById('div-'+i).appendChild(divSm);
+			}
+		}
+		// console.timeEnd('DOM');
+		// console.log('------');
+}
 
-console.timeEnd('test')
+var xyz = generateGrid();
+generateDOM(xyz);
+
+document.getElementById("load").addEventListener("click", function(){
+	xyz = generateGrid();
+});
+
+var interv = setInterval(() => {
+		xyz = futureState(xyz);
+		generateDOM(xyz);
+}, 35)
